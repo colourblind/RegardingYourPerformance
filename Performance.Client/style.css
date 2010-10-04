@@ -1,8 +1,13 @@
 body
 {
-    margin: 2em;
+    margin: 1.5em;
     font-family: Ariel, Helvetica, sans-serif;
     color: #666;
+}
+
+h1
+{
+    margin: 0 0 0.75em 0;
 }
 
 h2

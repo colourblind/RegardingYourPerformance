@@ -10,75 +10,83 @@
     
     <script type="text/javascript" src="jquery-1.4.2.min.js"></script>
     <script type="text/javascript" src="jquery.sparkline.min.js"></script>
+    <script type="text/javascript" src="common.js"></script>
     <script type="text/javascript">
 
-var timer;
-var data;
-var numPoints = 40;
-
-var feeds = [
+var feedData = [
     { url : 'http://localhost:7812/', name : 'test' },
-    { url : 'http://localhost:7812/', name : 'test2' }
+    { url : 'http://localhost:7812/', name : 'test 2' }
 ];
-    
+
+var feeds = [];
     
 $(function()
 {
-    timer = setInterval(update, 1000);
-    data = {
-        cpu : [],
-        memory : []
-    };
-    
-    for (var i = 0; i < numPoints; i ++)
-    {
-        data.cpu.push(0);
-        data.memory.push(0);
-    }
-    
-    for (var i = 0; i < feeds.length; i ++)
-        addFeed(feeds[i].name);
+    for (var i = 0; i < feedData.length; i ++)
+        feeds.push(new DataFeed('feeds', feedData[i].url, feedData[i].name));
 });
 
-function addFeed(feedName)
+function DataFeed(targetDivId, feedUrl, feedName)
 {
+    this.feedUrl = feedUrl;
+    this.feedName = feedName;
+    this.feedId = this.feedName.replace(/ /g, '_');
+    this.data = {
+        cpu : [],
+        memory : [],
+        requests : []
+    };
+    this.numPoints = 40;
+    
+    this.fetchData = function() {
+        $.ajax({
+            type : 'GET',
+            url : this.feedUrl,
+            dataType : 'jsonp',
+            success : createDelegate(this, this.update),
+            error : function(responseData) { alert(responseData); }
+        });
+    };
+    
+    this.update = function(responseData)
+    {
+        this.data.cpu.push(responseData.CpuUsage); 
+        if (this.data.cpu.length > this.numPoints) 
+            this.data.cpu.splice(0, 1); 
+            
+        this.data.memory.push(responseData.FreeMemory);
+        if (this.data.memory.length > this.numPoints)
+            this.data.memory.splice(0, 1);
+            
+        this.data.requests.push(responseData.RequestsPerSecond);
+        if (this.data.requests.length > this.numPoints)
+            this.data.requests.splice(0, 1);
+        
+        $('#' + this.feedId + ' div.cpu').sparkline(this.data.cpu, { chartRangeMin : 0, chartRangeMax : 100, width : '250px', height : '40px', lineColor : '#f66', fillColor : '#faa' }); 
+        $('#' + this.feedId + ' div.memory').sparkline(this.data.memory, { chartRangeMin : 0, chartRangeMax : 4000, width : '250px', height : '40px', lineColor : '#6f6', fillColor : '#afa' }); 
+        $('#' + this.feedId + ' div.requests').sparkline(this.data.requests, { chartRangeMin : 0, chartRangeMax : 100, width : '250px', height : '40px', lineColor : '#66f', fillColor : '#aaf' }); 
+    };
+
+    // Create feed markup
     var html = '';
-    html += '<div id="' + feedName + '">\n';
-    html += '<h2>' + feedName + '</h2>\n';
+    html += '<div id="' + this.feedId + '">\n';
+    html += '<h2>' + this.feedName + '</h2>\n';
     html += '<h3>CPU</h3>\n<div class="cpu"></div>\n';
     html += '<h3>Memory</h3><div class="memory"></div>\n'
+    html += '<h3>Requests</h3><div class="requests"></div>\n'
     html += '</div>\n';
-
-    $('#feeds').append(html);
-}
-
-function updateFeed(feedUrl, feedName)
-{
-   $.ajax({
-        type : 'GET',
-        url : feedUrl,
-        dataType : 'jsonp',
-        success : function(responseData)
-        {
-            data.cpu.push(responseData.CpuUsage); 
-            if (data.cpu.length > numPoints) 
-                data.cpu.splice(0, 1); 
-                
-            data.memory.push(responseData.FreeMemory);
-            if (data.memory.length > numPoints)
-                data.memory.splice(0, 1);
-            
-            $('#' + feedName + ' div.cpu').sparkline(data.cpu, { chartRangeMin : 0, chartRangeMax : 100, width : '250px', height : '40px', lineColor : '#f66', fillColor : '#faa' }); 
-            $('#' + feedName + ' div.memory').sparkline(data.memory, { chartRangeMin : 0, chartRangeMax : 4000, width : '250px', height : '40px', lineColor : '#6f6', fillColor : '#afa' }); 
-        },
-        error : function(responseData) { alert(responseData); }
-    });
-}
-
-function update()
-{
-    for (var i = 0; i < feeds.length; i ++)
-        updateFeed(feeds[i].url, feeds[i].name);
+    $('#' + targetDivId).append(html);
+    
+    // Populate blank data
+    for (var i = 0; i < this.numPoints; i ++)
+    {
+        this.data.cpu.push(0);
+        this.data.memory.push(0);
+        this.data.requests.push(0);
+    }
+    
+    // Start timer
+    this.timer = setInterval(createDelegate(this, this.fetchData), 1000);
 }
 
     </script>
