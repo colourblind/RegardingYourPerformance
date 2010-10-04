@@ -1,0 +1,43 @@
+body
+{
+    margin: 2em;
+    font-family: Ariel, Helvetica, sans-serif;
+    color: #666;
+}
+
+h2
+{
+    margin: 0 0 0.5em 0;
+    font-size: 18px;
+}
+
+h3
+{
+    margin: 0;
+    font-size: 14px;
+}
+
+#feeds > div
+{
+    width: 250px;
+    float: left;
+    margin: 0 16px 16px 0;
+    padding: 8px;
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+}
+
+#feeds canvas
+{
+    border: 1px solid #ccc;
+}
+
+div.cpu canvas
+{
+    background-color: #fdd;
+}
+
+div.memory canvas
+{
+    background-color: #dfd;
+}

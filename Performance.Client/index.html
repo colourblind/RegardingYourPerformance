@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Questions Regarding Your Performance Client v0.1</title>
+    
+    <link type="text/css" rel="stylesheet" href="style.css" />
+    
+    <script type="text/javascript" src="jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="jquery.sparkline.min.js"></script>
+    <script type="text/javascript">
+
+var timer;
+var data;
+var numPoints = 40;
+
+var feeds = [
+    { url : 'http://localhost:7812/', name : 'test' },
+    { url : 'http://localhost:7812/', name : 'test2' }
+];
+    
+    
+$(function()
+{
+    timer = setInterval(update, 1000);
+    data = {
+        cpu : [],
+        memory : []
+    };
+    
+    for (var i = 0; i < numPoints; i ++)
+    {
+        data.cpu.push(0);
+        data.memory.push(0);
+    }
+    
+    for (var i = 0; i < feeds.length; i ++)
+        addFeed(feeds[i].name);
+});
+
+function addFeed(feedName)
+{
+    var html = '';
+    html += '<div id="' + feedName + '">\n';
+    html += '<h2>' + feedName + '</h2>\n';
+    html += '<h3>CPU</h3>\n<div class="cpu"></div>\n';
+    html += '<h3>Memory</h3><div class="memory"></div>\n'
+    html += '</div>\n';
+
+    $('#feeds').append(html);
+}
+
+function updateFeed(feedUrl, feedName)
+{
+   $.ajax({
+        type : 'GET',
+        url : feedUrl,
+        dataType : 'jsonp',
+        success : function(responseData)
+        {
+            data.cpu.push(responseData.CpuUsage); 
+            if (data.cpu.length > numPoints) 
+                data.cpu.splice(0, 1); 
+                
+            data.memory.push(responseData.FreeMemory);
+            if (data.memory.length > numPoints)
+                data.memory.splice(0, 1);
+            
+            $('#' + feedName + ' div.cpu').sparkline(data.cpu, { chartRangeMin : 0, chartRangeMax : 100, width : '250px', height : '40px', lineColor : '#f66', fillColor : '#faa' }); 
+            $('#' + feedName + ' div.memory').sparkline(data.memory, { chartRangeMin : 0, chartRangeMax : 4000, width : '250px', height : '40px', lineColor : '#6f6', fillColor : '#afa' }); 
+        },
+        error : function(responseData) { alert(responseData); }
+    });
+}
+
+function update()
+{
+    for (var i = 0; i < feeds.length; i ++)
+        updateFeed(feeds[i].url, feeds[i].name);
+}
+
+    </script>
+</head>
+<body>
+
+    <h1>Questions Regarding Your Performance Client v0.1</h1>
+
+    <div id="feeds"></div>
+
+</body>
+</html>
