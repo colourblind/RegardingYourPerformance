@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.Net;
 using System.ServiceProcess;
@@ -63,11 +64,13 @@ namespace Performance.Agent
 
             Status = new Dictionary<string, string>();
 
-            ClickTimer = new Timer(1000);
+            double updateInterval = Convert.ToDouble(ConfigurationManager.AppSettings["UpdateInterval"]);
+            ClickTimer = new Timer(updateInterval);
             ClickTimer.Elapsed += new ElapsedEventHandler(ClickTimer_Elapsed);
 
+            string prefix = String.Format("http://+:{0}/", ConfigurationManager.AppSettings["ServerPort"]);
             HttpListener = new HttpListener();
-            HttpListener.Prefixes.Add("http://+:7812/");
+            HttpListener.Prefixes.Add(prefix);
         }
 
         #endregion
