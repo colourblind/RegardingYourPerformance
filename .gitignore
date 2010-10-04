@@ -1,0 +1,4 @@
+src/*.suo
+src/**/*.user
+src/**/bin
+src/**/obj
