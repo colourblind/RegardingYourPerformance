@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
+using System.Management;
 using System.Net;
 using System.ServiceProcess;
 using System.Text;
@@ -57,11 +58,6 @@ namespace Performance.Agent
         {
             InitializeComponent();
 
-            // Instantiating these are crazy-slow and causes net start to report a timeout
-            CpuPerformanceCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-            RequestsPerSecondCounter = new PerformanceCounter("ASP.NET Applications", "Requests/Sec", "__Total__");
-            MemoryPerformanceCounter = new PerformanceCounter("Memory", "Available MBytes");
-
             Status = new Dictionary<string, string>();
 
             double updateInterval = Convert.ToDouble(ConfigurationManager.AppSettings["UpdateInterval"]);
@@ -79,6 +75,12 @@ namespace Performance.Agent
 
         protected override void OnStart(string[] args)
         {
+            // Would rather have these in the constructor, but instantiating them is crazy-slow and 
+            // causes net start to report a timeout
+            CpuPerformanceCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+            RequestsPerSecondCounter = new PerformanceCounter("ASP.NET Applications", "Requests/Sec", "__Total__");
+            MemoryPerformanceCounter = new PerformanceCounter("Memory", "Available MBytes");
+
             ClickTimer.Start();
             HttpListener.Start();
 
@@ -92,6 +94,10 @@ namespace Performance.Agent
             ClickTimer.Stop();
             ClickTimer.Dispose();
             HttpListener.Close();
+
+            CpuPerformanceCounter.Dispose();
+            MemoryPerformanceCounter.Dispose();
+            RequestsPerSecondCounter.Dispose();
         }
 
         #endregion
