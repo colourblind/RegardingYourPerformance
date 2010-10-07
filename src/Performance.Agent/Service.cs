@@ -78,8 +78,14 @@ namespace Performance.Agent
             // Would rather have these in the constructor, but instantiating them is crazy-slow and 
             // causes net start to report a timeout
             CpuPerformanceCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-            RequestsPerSecondCounter = new PerformanceCounter("ASP.NET Applications", "Requests/Sec", "__Total__");
             MemoryPerformanceCounter = new PerformanceCounter("Memory", "Available MBytes");
+            RequestsPerSecondCounter = new PerformanceCounter("ASP.NET Applications", "Requests/Sec", "__Total__");
+
+            // Since requests can arrive before these are first populated, fill with data so we don't
+            // send junk to the client
+            Status["CpuUsage"] = "0";
+            Status["FreeMemory"] = "0";
+            Status["RequestsPerSecond"] = "0";
 
             ClickTimer.Start();
             HttpListener.Start();
@@ -138,8 +144,8 @@ namespace Performance.Agent
         void ClickTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             Status["CpuUsage"] = CpuPerformanceCounter.NextValue().ToString();
-            Status["RequestsPerSecond"] = RequestsPerSecondCounter.NextValue().ToString();
             Status["FreeMemory"] = MemoryPerformanceCounter.NextValue().ToString();
+            Status["RequestsPerSecond"] = RequestsPerSecondCounter.NextValue().ToString();
         }
 
         #endregion
