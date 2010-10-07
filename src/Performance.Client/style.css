@@ -46,3 +46,8 @@ div.memory canvas
 {
     background-color: #dfd;
 }
+
+div.requests canvas
+{
+    background-color: #ddf;
+}
