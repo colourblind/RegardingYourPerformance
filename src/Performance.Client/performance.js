@@ -11,33 +11,55 @@ function DataFeed(targetDivId, feedUrl, feedName)
     this.numPoints = 40;
     
     this.fetchData = function() {
-        $.ajax({
+        $.jsonp({
             type : 'GET',
             url : this.feedUrl,
+            callbackParameter: 'callback',
             dataType : 'jsonp',
             success : createDelegate(this, this.update),
-            error : function(responseData) { alert(responseData); }
+            error : createDelegate(this, this.ruhroh)
         });
+    };
+    
+    this.ruhroh = function(responseData)
+    {
+        var feedDiv = $('#' + this.feedId);
+        if (feedDiv.attr('style') == undefined)
+            feedDiv.css('background-color', '#f33');
+        else
+            feedDiv.removeAttr('style');
+            
+        this.pushData(this.data.cpu, '0');
+        this.pushData(this.data.memory, '0');
+        this.pushData(this.data.requests, '0');
+
+        this.draw();
     };
     
     this.update = function(responseData)
     {
-        this.data.cpu.push(responseData.CpuUsage); 
-        if (this.data.cpu.length > this.numPoints) 
-            this.data.cpu.splice(0, 1); 
-            
-        this.data.memory.push(responseData.FreeMemory);
-        if (this.data.memory.length > this.numPoints)
-            this.data.memory.splice(0, 1);
-            
-        this.data.requests.push(responseData.RequestsPerSecond);
-        if (this.data.requests.length > this.numPoints)
-            this.data.requests.splice(0, 1);
+        $('#' + this.feedId).removeAttr('style');
+
+        this.pushData(this.data.cpu, responseData.CpuUsage);
+        this.pushData(this.data.memory, responseData.FreeMemory);
+        this.pushData(this.data.requests, responseData.RequestsPerSecond);
         
+        this.draw();
+    };
+    
+    this.draw = function()
+    {
         $('#' + this.feedId + ' div.cpu').sparkline(this.data.cpu, { chartRangeMin : 0, chartRangeMax : 100, width : '250px', height : '40px', lineColor : '#f66', fillColor : '#faa' }); 
         $('#' + this.feedId + ' div.memory').sparkline(this.data.memory, { chartRangeMin : 0, chartRangeMax : 4000, width : '250px', height : '40px', lineColor : '#6f6', fillColor : '#afa' }); 
         $('#' + this.feedId + ' div.requests').sparkline(this.data.requests, { chartRangeMin : 0, chartRangeMax : 100, width : '250px', height : '40px', lineColor : '#66f', fillColor : '#aaf' }); 
     };
+    
+    this.pushData = function(list, value)
+    {
+        list.push(value);
+        if (list.length > this.numPoints)
+            list.splice(0, 1);
+    }
 
     // Create feed markup
     var html = '';
@@ -56,6 +78,8 @@ function DataFeed(targetDivId, feedUrl, feedName)
         this.data.memory.push(0);
         this.data.requests.push(0);
     }
+    
+    this.draw();
     
     // Start timer
     this.timer = setInterval(createDelegate(this, this.fetchData), 1000);
