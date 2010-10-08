@@ -50,6 +50,12 @@ namespace Performance.Agent
             set;
         }
 
+        private float TotalPhysicalMemory
+        {
+            get;
+            set;
+        }
+
         #endregion
 
         #region Constructors
@@ -75,6 +81,11 @@ namespace Performance.Agent
 
         protected override void OnStart(string[] args)
         {
+            // Get total memory
+            ManagementObjectSearcher wmi = new ManagementObjectSearcher("select * from Win32_ComputerSystem");
+            foreach (ManagementObject o in wmi.Get())
+                TotalPhysicalMemory += Convert.ToSingle(o["TotalPhysicalMemory"]) / (1024 * 1024);
+
             // Would rather have these in the constructor, but instantiating them is crazy-slow and 
             // causes net start to report a timeout
             CpuPerformanceCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
@@ -84,7 +95,7 @@ namespace Performance.Agent
             // Since requests can arrive before these are first populated, fill with data so we don't
             // send junk to the client
             Status["CpuUsage"] = "0";
-            Status["FreeMemory"] = "0";
+            Status["MemoryUsage"] = "0";
             Status["RequestsPerSecond"] = "0";
 
             ClickTimer.Start();
@@ -144,7 +155,7 @@ namespace Performance.Agent
         void ClickTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             Status["CpuUsage"] = CpuPerformanceCounter.NextValue().ToString();
-            Status["FreeMemory"] = MemoryPerformanceCounter.NextValue().ToString();
+            Status["MemoryUsage"] = ((TotalPhysicalMemory - MemoryPerformanceCounter.NextValue()) * 100 / TotalPhysicalMemory).ToString();
             Status["RequestsPerSecond"] = RequestsPerSecondCounter.NextValue().ToString();
         }
 
