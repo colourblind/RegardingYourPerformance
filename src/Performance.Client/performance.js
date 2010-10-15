@@ -24,11 +24,9 @@ function DataFeed(targetDivId, feedUrl, feedName)
     this.ruhroh = function(responseData)
     {
         var feedDiv = $('#' + this.feedId);
-        if (feedDiv.attr('style') == undefined)
-            feedDiv.css('background-color', '#f33');
-        else
-            feedDiv.removeAttr('style');
-            
+        feedDiv.addClass('fatal');
+        feedDiv.toggleClass('flash');
+        
         this.pushData(this.data.cpu, '0');
         this.pushData(this.data.memory, '0');
         this.pushData(this.data.requests, '0');
@@ -38,7 +36,7 @@ function DataFeed(targetDivId, feedUrl, feedName)
     
     this.update = function(responseData)
     {
-        $('#' + this.feedId).removeAttr('style');
+        $('#' + this.feedId).removeClass('fatal');
 
         this.pushData(this.data.cpu, responseData.CpuUsage);
         this.pushData(this.data.memory, responseData.MemoryUsage);
@@ -49,9 +47,9 @@ function DataFeed(targetDivId, feedUrl, feedName)
     
     this.draw = function()
     {
-        $('#' + this.feedId + ' div.cpu').sparkline(this.data.cpu, { chartRangeMin : 0, chartRangeMax : 100, width : '250px', height : '40px', lineColor : '#f66', fillColor : '#faa' }); 
-        $('#' + this.feedId + ' div.memory').sparkline(this.data.memory, { chartRangeMin : 0, chartRangeMax : 100, width : '250px', height : '40px', lineColor : '#6f6', fillColor : '#afa' }); 
-        $('#' + this.feedId + ' div.requests').sparkline(this.data.requests, { chartRangeMin : 0, chartRangeMax : 100, width : '250px', height : '40px', lineColor : '#66f', fillColor : '#aaf' }); 
+        $('#' + this.feedId + ' div.cpu').sparkline(this.data.cpu, { chartRangeMin : 0, chartRangeMax : 100, width : '100%', height : '40px', lineColor : '#f66', fillColor : '#faa' }); 
+        $('#' + this.feedId + ' div.memory').sparkline(this.data.memory, { chartRangeMin : 0, chartRangeMax : 100, width : '100%', height : '40px', lineColor : '#6f6', fillColor : '#afa' }); 
+        $('#' + this.feedId + ' div.requests').sparkline(this.data.requests, { chartRangeMin : 0, chartRangeMax : 100, width : '100%', height : '40px', lineColor : '#66f', fillColor : '#aaf' }); 
     };
     
     this.pushData = function(list, value)

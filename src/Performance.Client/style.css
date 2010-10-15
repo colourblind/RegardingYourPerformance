@@ -51,3 +51,6 @@ div.requests canvas
 {
     background-color: #ddf;
 }
+
+#feeds > div.fatal          { background-color: #f33; }
+#feeds > div.fatal.flash    { background-color: #f66; }
