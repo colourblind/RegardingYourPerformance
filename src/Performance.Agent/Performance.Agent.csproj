@@ -8,11 +8,11 @@
     <ProjectGuid>{E54F4B41-9253-4176-8FC3-5D2282A3FF82}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Performance.Agent</RootNamespace>
+    <RootNamespace>RegardingYourPerformance.Agent</RootNamespace>
     <AssemblyName>Performance.Agent</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <StartupObject>Performance.Agent.Program</StartupObject>
+    <StartupObject>RegardingYourPerformance.Agent.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

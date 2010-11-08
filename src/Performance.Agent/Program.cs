@@ -4,7 +4,7 @@ using System.Configuration.Install;
 using System.Reflection;
 using System.ServiceProcess;
 
-namespace Performance.Agent
+namespace RegardingYourPerformance.Agent
 {
     static class Program
     {

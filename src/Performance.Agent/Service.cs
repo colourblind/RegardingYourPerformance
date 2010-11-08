@@ -8,7 +8,7 @@ using System.ServiceProcess;
 using System.Text;
 using System.Timers;
 
-namespace Performance.Agent
+namespace RegardingYourPerformance.Agent
 {
     public partial class Service : ServiceBase
     {

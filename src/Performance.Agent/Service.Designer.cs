@@ -1,4 +1,4 @@
-﻿namespace Performance.Agent
+﻿namespace RegardingYourPerformance.Agent
 {
     partial class Service
     {
