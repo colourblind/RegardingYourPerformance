@@ -1,4 +1,4 @@
-Questions Regarding You Performance is a utility to monitor the performance 
+'Regarding You Performance' is a utility to monitor the performance 
 of a collection of remote hosts. It consists of two parts: the Agent, which 
 runs as a Windows service and responds to requests for information in JSONP
 format via a built in HTTP service, and the client, which is a web page which 
@@ -44,3 +44,15 @@ var feedData = [
     { url : 'http://localhost:7812/', name : 'Test' },
     { url : 'http://www.someotherhost:7812/', name : 'Some Other Host' }
 ];
+
+SUPPORTED
+
+Tested on:
+
+Windows 7 64-bit Home Profession
+Windows Server 2003 Standard SP1
+
+TODO
+
+- Add 'current requests'
+- Add hosted webpage client option
