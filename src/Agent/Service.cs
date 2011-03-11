@@ -123,18 +123,22 @@ namespace RegardingYourPerformance.Agent
 
         private void RequestCallback(IAsyncResult result)
         {
+            HttpListenerContext context = null;
             try
             {
-                HttpListenerContext context = HttpListener.EndGetContext(result);
+                context = HttpListener.EndGetContext(result);
 
                 string callback = context.Request.QueryString["callback"];
 
                 string output = "{";
                 bool foo = false;
-                foreach (string key in Status.Keys)
+                lock (Status)
                 {
-                    output += String.Format("{2}\n\t{0} : '{1}'", key, Status[key], foo ? "," : "");
-                    foo = true;
+                    foreach (string key in Status.Keys)
+                    {
+                        output += String.Format("{2}\n\t{0} : '{1}'", key, Status[key], foo ? "," : "");
+                        foo = true;
+                    }
                 }
                 output += "\n}";
 
@@ -144,19 +148,23 @@ namespace RegardingYourPerformance.Agent
                 byte[] outputBytes = encoding.GetBytes(output);
 
                 context.Response.OutputStream.Write(outputBytes, 0, outputBytes.Length);
-                context.Response.Close();
             }
             finally
             {
+                if (context != null && context.Response != null)
+                    context.Response.Close();
                 HttpListener.BeginGetContext(new AsyncCallback(RequestCallback), null);
             }
         }
 
         void ClickTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            Status["CpuUsage"] = CpuPerformanceCounter.NextValue().ToString();
-            Status["MemoryUsage"] = ((TotalPhysicalMemory - MemoryPerformanceCounter.NextValue()) * 100 / TotalPhysicalMemory).ToString();
-            Status["RequestsPerSecond"] = RequestsPerSecondCounter.NextValue().ToString();
+            lock (Status)
+            {
+                Status["CpuUsage"] = CpuPerformanceCounter.NextValue().ToString();
+                Status["MemoryUsage"] = ((TotalPhysicalMemory - MemoryPerformanceCounter.NextValue()) * 100 / TotalPhysicalMemory).ToString();
+                Status["RequestsPerSecond"] = RequestsPerSecondCounter.NextValue().ToString();
+            }
         }
 
         #endregion
