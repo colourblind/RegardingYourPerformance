@@ -7,7 +7,7 @@ function DataFeed(targetDivId, feedUrl, feedName)
         cpu : [],
         memory : [],
         requests : []
-    };
+    }
     this.numPoints = 40;
     
     this.fetchData = function() {
@@ -19,7 +19,7 @@ function DataFeed(targetDivId, feedUrl, feedName)
             success : createDelegate(this, this.update),
             error : createDelegate(this, this.ruhroh)
         });
-    };
+    }
     
     this.ruhroh = function(responseData)
     {
@@ -32,7 +32,7 @@ function DataFeed(targetDivId, feedUrl, feedName)
         this.pushData(this.data.requests, '0');
 
         this.draw();
-    };
+    }
     
     this.update = function(responseData)
     {
@@ -43,20 +43,20 @@ function DataFeed(targetDivId, feedUrl, feedName)
         this.pushData(this.data.requests, responseData.RequestsPerSecond);
         
         this.draw();
-    };
+    }
     
     this.draw = function()
     {
         $('#' + this.feedId + ' div.cpu').sparkline(this.data.cpu, { chartRangeMin : 0, chartRangeMax : 100, width : '100%', height : '40px', lineColor : '#f66', fillColor : '#faa' }); 
         $('#' + this.feedId + ' div.memory').sparkline(this.data.memory, { chartRangeMin : 0, chartRangeMax : 100, width : '100%', height : '40px', lineColor : '#6f6', fillColor : '#afa' }); 
         $('#' + this.feedId + ' div.requests').sparkline(this.data.requests, { chartRangeMin : 0, chartRangeMax : 100, width : '100%', height : '40px', lineColor : '#66f', fillColor : '#aaf' }); 
-    };
+    }
     
     this.pushData = function(list, value)
     {
         list.push(value);
         if (list.length > this.numPoints)
-            list.splice(0, 1);
+            list.shift();
     }
 
     // Create feed markup
