@@ -128,7 +128,7 @@ namespace RegardingYourPerformance.Agent
             {
                 context = HttpListener.EndGetContext(result);
 
-                string callback = context.Request.QueryString["callback"];
+                string callback = context.Request.QueryString["callback"] ?? context.Request.QueryString["jsonp"];
 
                 string output = "{";
                 bool foo = false;
@@ -142,7 +142,8 @@ namespace RegardingYourPerformance.Agent
                 }
                 output += "\n}";
 
-                output = String.Format("{0}({1})", callback, output);
+                if (!String.IsNullOrEmpty(callback))
+                    output = String.Format("{0}({1})", callback, output);
 
                 Encoding encoding = new UTF8Encoding(false); // Whenever I have UTF8 problems it's BOM's fault
                 byte[] outputBytes = encoding.GetBytes(output);
